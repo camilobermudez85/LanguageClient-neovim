@@ -624,7 +624,7 @@ function! LanguageClient#Write(message) abort
 endfunction
 
 function! LanguageClient#Call(method, params, callback, ...) abort
-    if &buftype !=# '' || &filetype ==# '' || expand('%') ==# ''
+    if (&buftype !=# '' || &filetype ==# '' || expand('%') ==# '') && &filetype !=# 'java'
         " call s:Debug('Skip sending message')
         return
     endif
@@ -654,7 +654,7 @@ function! LanguageClient#Call(method, params, callback, ...) abort
 endfunction
 
 function! LanguageClient#Notify(method, params) abort
-    if &buftype !=# '' || &filetype ==# '' || expand('%') ==# ''
+    if (&buftype !=# '' || &filetype ==# '' || expand('%') ==# '') && &filetype !=# 'java'
         " call s:Debug('Skip sending message')
         return
     endif
@@ -1243,7 +1243,7 @@ endfunction
 function! LanguageClient#java_classFileContent(...) abort
     let l:params = get(a:000, 0, {})
     let l:Callback = get(a:000, 1, v:null)
-    return LanguageClient#Call('java/classFileContent', l:params, l:Callback)
+    return LanguageClient#Call('java/classFileContents', l:params, l:Callback)
 endfunction
 
 function! LanguageClient_contextMenuItems() abort
