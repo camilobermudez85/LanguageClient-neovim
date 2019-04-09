@@ -1091,6 +1091,12 @@ impl LanguageClient {
         self.textDocument_didChange(params)?;
         info!("Begin {}", lsp::request::Rename::METHOD);
         let filename = self.vim()?.get_filename(params)?;
+
+        // Ignore java class files
+        if filename.starts_with("jdt://") {
+            return Ok(Value::Null);
+        }
+
         let languageId = self.vim()?.get_languageId(&filename, params)?;
         let position = self.vim()?.get_position(params)?;
         let current_word = self.vim()?.get_current_word(params)?;
@@ -2068,8 +2074,17 @@ impl LanguageClient {
 
     pub fn languageClient_handleBufNewFile(&self, params: &Value) -> Fallible<()> {
         info!("Begin {}", NOTIFICATION__HandleBufNewFile);
-        if self.vim()?.get_filename(params)?.is_empty() {
+        let filename = self.vim()?.get_filename(params)?;
+        if filename.is_empty() {
             return Ok(());
+        }
+
+        if filename.starts_with("jdt://") {
+            self.java_classFileContents(&json!({
+                "languageId": "java",
+                "uri": filename,
+            }))?;
+            return Ok(())
         }
 
         let autoStart: u8 = self
@@ -2930,9 +2945,21 @@ impl LanguageClient {
         let filename = self.vim()?.get_filename(params)?;
         let languageId = self.vim()?.get_languageId(&filename, params)?;
 
-        let content: String = self
+        self.vim()?.command("setlocal buftype=nofile filetype=java noswapfile")?;
+        let result = self
             .get_client(&Some(languageId.clone()))?
             .call(REQUEST__ClassFileContents, params)?;
+
+        let content = match result {
+            Value::String(s) => s,
+            _ => bail!("Unexpected type: {:?}", result),
+        };
+
+        let lines: Vec<String> = content
+            .lines()
+            .map(std::string::ToString::to_string)
+            .collect();
+        self.vim()?.setline(1, &lines)?;
 
         info!("End {}", REQUEST__ClassFileContents);
         Ok(Value::String(content))
