@@ -1243,7 +1243,7 @@ endfunction
 function! LanguageClient#java_classFileContent(...) abort
     let l:params = get(a:000, 0, {})
     let l:Callback = get(a:000, 1, v:null)
-    return LanguageClient#Call('java/classFileContent', l:params, l:Callback)
+    return LanguageClient#Call('java/classFileContents', l:params, l:Callback)
 endfunction
 
 function! LanguageClient_contextMenuItems() abort
