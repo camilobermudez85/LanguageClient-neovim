@@ -2084,7 +2084,7 @@ impl LanguageClient {
                 "languageId": "java",
                 "uri": filename,
             }))?;
-            return Ok(())
+            return Ok(());
         }
 
         let autoStart: u8 = self
@@ -2941,7 +2941,8 @@ impl LanguageClient {
         let filename = self.vim()?.get_filename(params)?;
         let languageId = self.vim()?.get_languageId(&filename, params)?;
 
-        self.vim()?.command("setlocal buftype=nofile filetype=java noswapfile")?;
+        self.vim()?
+            .command("setlocal buftype=nofile filetype=java noswapfile")?;
         let result = self
             .get_client(&Some(languageId.clone()))?
             .call(REQUEST__ClassFileContents, params)?;
