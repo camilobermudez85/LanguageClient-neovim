@@ -6,11 +6,11 @@ use crate::lsp::request::GotoDefinitionResponse;
 use crate::lsp::request::Request;
 use crate::rpcclient::RpcClient;
 use crate::sign::Sign;
+use crate::vim::try_get;
 use failure::err_msg;
 use itertools::Itertools;
 use notify::Watcher;
 use std::sync::mpsc;
-use vim::try_get;
 
 impl LanguageClient {
     pub fn get_client(&self, lang_id: &LanguageId) -> Fallible<RpcClient> {
